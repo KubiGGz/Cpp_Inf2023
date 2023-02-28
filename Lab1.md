@@ -153,7 +153,7 @@ int main()
 ![Текст с описанием картинки](Standart_mid_Time(graph)_page-0001.jpg)
 Из графика видно, что случайной распределение заключено между функциями T = N и T = const. Это подтверждает асимптотику алгоритма.
 
-Далее рассмотрим бинарный поиск элемента в массиве:
+Далее рассмотрим бинарный поиск несуществуюшего элемента в массиве:
 ```C++
 #include <iostream>
 #include <fstream>
@@ -213,6 +213,92 @@ int main()
 		for (unsigned cnt = 10000; cnt != 0; --cnt)
 		{
 			binary_search(arr, n, element);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+}
+
+```
+На графике прослеживается логарифмическая зависимость, что подтверждает асимптотику алгоритма.
+![Текст с описанием картинки](Binary_low_Time(graph)_page-0001.jpg)
+
+Теперь будем искать случайный элемент в массиве с помощью бинарного поиска:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int binary_search(int m[], int n, int element)
+{
+	int length = n;
+	int mid = 0;
+	int left = 0;
+	int right = length - 1;
+
+	while (right >= 0)
+	{
+		mid = (left + right) / 2;
+		if (m[mid] == element)
+		{
+			return 1;
+		}
+		if (m[mid] < element)
+		{
+			left = mid + 1;
+		}
+		else
+		{
+			right = mid - 1;
+		}
+	}
+	return 0;
+
+}
+
+
+int main()
+{
+	int arr[100000];
+	int time_bn = 0;
+
+
+	for (int N = 100; N < 100000; N += 10)
+	{
+		int current_size = N;
+		int tmp = 0;
+		int num = 0;
+
+		for (int i = 0; i < current_size; i++)
+		{
+			arr[i] = tmp;
+			tmp += 1;
+		}
+
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, current_size);
+		num = dstr(rng);
+
+		int n = current_size;
+		int element = -1;
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 5000; cnt != 0; --cnt)
+		{
+			binary_search(arr, n, num);
 		}
 		auto end = std::chrono::steady_clock::now();
 		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
