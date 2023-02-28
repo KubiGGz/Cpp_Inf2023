@@ -475,3 +475,218 @@ int main()
 ```
 График подтверждает, что время суммарное время поиска линейно зависит от количества элементов в массиве:
 ![Текст с описанием картинки](pair_AdvancedFinder(graph)_page-0001.jpg)
+
+
+### 3. Часто используемый элемент
+Приведём стратегию А:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int A_strategy(int *m, int n, int key)
+{
+	for (int i = 0; i < n; i++)
+	{
+		if (m[i] == key) 
+		{
+			swap(m[0], m[i]);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int main()
+{
+	int arr[100000];
+	int time_bn = 0;
+	int Num = 0;
+
+
+	for (int l = 0; l < 100000; l += 10)
+	{
+		int current_size = l;
+
+		for (int k = 0; k < current_size; k++)
+		{
+			int tmp = 0;
+			arr[k] = tmp;
+			tmp += 1;
+		}
+
+		int lngth = (2 * current_size) + (current_size / 2);
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, lngth);
+		Num = dstr(rng);
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 5000; cnt != 0; --cnt)
+		{
+			A_strategy(arr, current_size, Num);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+	
+}
+```
+Ниже приведём два графика: на первом графике изображена зависимость суммарного времени поиска от количества элементов в массиве при равномерном распределении запросов
+![Текст с описанием картинки](Astrat(norm)_page-0001.jpg)
+Теперь приведём график, когда запросы распределены неравномерно:
+![Текст с описанием картинки](Astrat(not_ravnom)_page-0001.jpg)
+Как мы можем видеть, в обоих случаях асимптотика остаётся линейной.
+
+Теперь реализуем стратегию B:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int B_strategy(int *m, int n, int key)
+{
+	for (int i = 0; i < n; i++)
+	{
+		if ((m[i] == key) && (m[i] != m[0]))
+		{
+			swap(key, m[i-1]);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int main()
+{
+	int arr[100000];
+	int time_bn = 0;
+	int Num = 0;
+
+
+	for (int l = 0; l < 100000; l += 10)
+	{
+		int current_size = l;
+
+		for (int k = 0; k < current_size; k++)
+		{
+			int tmp = 0;
+			arr[k] = tmp;
+			tmp += 1;
+		}
+
+		int lngth = (2 * current_size) + (current_size / 2);
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, lngth);
+		Num = dstr(rng);
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 5000; cnt != 0; --cnt)
+		{
+			B_strategy(arr, current_size, Num);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+}
+```
+Аналогично стратегии A, для стратегии B, приведём зависимость суммарного времени поиска от количества элементов в массиве. На первом графике представлена зависимость при равномерном распределении запросов:
+![Текст с описанием картинки](Bstrat(norm)_page-0001.jpg)
+Теперь представим зависимость при неравномерном распределении запросов.
+![Текст с описанием картинки](Bstrat(not_ravnom)_page-0001.jpg)
+
+Разберёмся теперь со стратегией С. Ниже приведён код, реализовывающий её:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int C_strategy(int* m, int n, int key) {
+	int elem_check[100000];
+	for (int i = 0; i < n; i++)
+	{
+		if ((m[i] == key) && (i != 0))
+		{
+			if (elem_check[i - 1] < elem_check[i]) {
+				swap(m[i], m[i - 1]);
+				swap(elem_check[i], elem_check[i - 1]);
+				return 1;
+			}
+		}
+	}
+	return 0;
+	
+}
+
+int main()
+{
+	int arr[100000];
+	int time_bn = 0;
+	int Num = 0;
+
+
+	for (int l = 0; l < 100000; l += 10)
+	{
+		int current_size = l;
+
+		for (int k = 0; k < current_size; k++)
+		{
+			int tmp = 0;
+			arr[k] = tmp;
+			tmp += 1;
+		}
+
+		int lngth = (2 * current_size) + (current_size / 2);
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, lngth);
+		Num = dstr(rng);
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 5000; cnt != 0; --cnt)
+		{
+			C_strategy(arr, current_size, Num);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+	
+}
+```
