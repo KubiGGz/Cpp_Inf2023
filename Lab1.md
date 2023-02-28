@@ -321,3 +321,157 @@ int main()
 
 
 ### 2. Сумма двух
+Представим код, который с помощью перебора ищет сумму двух элементов, образующих заданное число:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int pair_search(int m[], int n, int Num)
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = i; j < n; j++)
+		{
+			if ((m[i] + m[j]) == Num)
+			{
+				return m[i], m[j];
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+
+int main()
+{
+	int arr[6100];
+	int time_bn = 0;
+	int Num = 0;
+
+
+	for (int l = 100; l < 6100; l += 10)
+	{
+		int current_size = l;
+
+		for (int k = 0; k < current_size; k++)
+		{
+			int tmp = 0;
+			arr[k] = tmp;
+			tmp += 1;
+		}
+
+		int lngth = (2 * current_size) + (current_size / 2);
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, lngth);
+		Num = dstr(rng);
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 100; cnt != 0; --cnt)
+		{
+			pair_search(arr, current_size, Num);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+}
+```
+Представим график, отражающий асимптотику написанного выше алгоритма:
+![Текст с описанием картинки](pair_SimpleFinder(graph)_page-0001.jpg)
+Видно, что алгоритм имеет квадратиную асимптотическую сложность от N, количества элементов в массиве.
+
+Теперь приведём более "простой" алгоритм, работающий с линейной асимптотикой:
+```C++
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <string>
+#include <random>
+using namespace std;
+
+int pair_searcher_advanced(int m[], int n, int N)
+{
+	int left = 0; //Левая граница
+	int right = n - 1; //Правая граница
+
+	while (left != right)
+	{
+		int sum = m[left] + m[right];
+		if (sum < N)
+		{
+			++left;
+		}
+		else if (sum > N)
+		{
+			++right;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	return 0;
+
+}
+
+
+int main()
+{
+	int arr[50100];
+	int time_bn = 0;
+	int Num = 0;
+
+
+	for (int l = 100; l < 50100; l += 10)
+	{
+		int current_size = l;
+
+		for (int k = 0; k < current_size; k++)
+		{
+			int tmp = 0;
+			arr[k] = tmp;
+			tmp += 1;
+		}
+
+		int lngth = (2 * current_size) + (current_size / 2);
+		unsigned seed = 1001;
+		default_random_engine rng(seed);
+		uniform_int_distribution<unsigned> dstr(0, lngth);
+		Num = dstr(rng);
+
+		auto begin = std::chrono::steady_clock::now();
+		for (unsigned cnt = 5000; cnt != 0; --cnt)
+		{
+			pair_searcher_advanced(arr, current_size, Num);
+		}
+		auto end = std::chrono::steady_clock::now();
+		auto time_span = std::chrono::duration_cast<std::chrono::microseconds>(end - begin);
+		time_bn = time_span.count();
+
+		fstream fs;
+		fs.open("E:\\timeBN.txt", fstream::in | fstream::out | fstream::app);
+		if (fs.is_open())
+		{
+			fs << time_bn << endl;
+		}
+		fs.close();
+	}
+
+}
+```
+График подтверждает, что время суммарное время поиска линейно зависит от количества элементов в массиве:
+![Текст с описанием картинки](pair_AdvancedFinder(graph)_page-0001.jpg)
